@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Classe Eventi">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>Classe Eventi</title>
+<style>
+:root{
+  --bg:#f4f6fb;--card:#fff;--ink:#1b2333;--mute:#6b7487;--line:#e4e8f0;
+  --pri:#2f6fed;--pri-ink:#fff;--ok:#1f9d55;--okbg:#e5f6ec;--warn:#c77700;--warnbg:#fff3dc;--bad:#d64545;--badbg:#fdeaea;
+  --shadow:0 1px 3px rgba(20,30,60,.08);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1420;--card:#19202f;--ink:#e8ecf5;--mute:#98a2b8;--line:#2a3347;
+  --pri:#5b90ff;--pri-ink:#0b1020;--ok:#4cc784;--okbg:#14301f;--warn:#f0a73a;--warnbg:#38290f;--bad:#ff7b7b;--badbg:#3a1a1c;--shadow:none;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:var(--pri-ink);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px;min-height:56px}
+header h1{font-size:19px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header button{background:rgba(255,255,255,.2);color:inherit;border:0;border-radius:10px;font-size:18px;padding:6px 12px}
+main{padding:14px 16px;max-width:720px;margin:0 auto}
+.card{background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px;border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat small{color:var(--mute);display:block;font-size:12px}
+.stat b{font-size:20px}
+.stat.ok b{color:var(--ok)}.stat.bad b{color:var(--bad)}
+small,.mute{color:var(--mute);font-size:13px}
+.grow{flex:1;min-width:0}
+.grow b,.grow small{display:block;overflow:hidden;text-overflow:ellipsis}
+.ev,.row{display:flex;gap:12px;align-items:center;cursor:pointer}
+.ev .ic{font-size:28px;width:44px;height:44px;border-radius:12px;background:var(--bg);display:grid;place-items:center;flex:none}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:6px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--bad)}
+.dot.partial{background:var(--warn)}.dot.paid{background:var(--ok)}
+.amt{text-align:right;font-weight:600;white-space:nowrap}
+.amt small{display:block;font-weight:400;color:var(--bad)}
+.amt.paid small{color:var(--ok)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:10px 0;padding-bottom:2px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:20px;font-size:14px;white-space:nowrap}
+.chip.on{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+textarea{min-height:80px;resize:vertical}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+label.chk{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:8px 0}
+label.chk input{width:20px;height:20px;flex:none}
+.btn{background:var(--pri);color:var(--pri-ink);border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:600}
+.btn.sec{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.btn.bad{background:var(--badbg);color:var(--bad)}
+.btn.full{width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.btns .btn{flex:1;min-width:120px;font-size:14px;padding:10px}
+.ghost{background:none;border:0;font-size:20px;padding:4px 6px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;background:none;border:0;padding:9px 0 8px;color:var(--mute);font-size:11px}
+nav button span{display:block;font-size:22px}
+nav button.on{color:var(--pri);font-weight:600}
+.fab{position:fixed;right:18px;bottom:calc(88px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;background:var(--pri);color:var(--pri-ink);border:0;font-size:30px;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:7}
+#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
+#sheetbg.show{display:flex}
+#sheet{background:var(--card);width:100%;max-width:720px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+#sheet h2{margin:0 0 4px;font-size:19px}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%}
+#toast.show{opacity:1}
+.empty{text-align:center;color:var(--mute);padding:30px 10px}
+.empty .big{font-size:46px}
+.banner{background:var(--warnbg);color:var(--warn);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+h3{margin:18px 0 8px;font-size:15px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:12px;background:var(--bg);color:var(--mute)}
+.pick{max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:4px 10px}
+.hr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);gap:10px}
+.hr:last-child{border:0}
+</style>
+</head>
+<body>
+<header><button id="back" hidden>←</button><h1 id="title">Classe Eventi</h1><button id="hbtn" hidden></button></header>
+<main id="app"></main>
+<button class="fab" id="fab" hidden>＋</button>
+<nav>
+  <button data-go="events"><span>📅</span>Eventi</button>
+  <button data-go="parents"><span>👪</span>Genitori</button>
+  <button data-go="summary"><span>📊</span>Riepilogo</button>
+  <button data-go="settings"><span>⚙️</span>Altro</button>
+</nav>
+<div id="sheetbg"><div id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ============ Utilità ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const eur = n => new Intl.NumberFormat('it-IT', {style:'currency', currency:'EUR'}).format(n || 0);
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : Math.round(n * 100) / 100; };
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const today = () => ymd(new Date());
+const fmtDate = iso => iso ? new Date(iso + 'T00:00').toLocaleDateString('it-IT', {day:'numeric', month:'short', year:'numeric'}) : '';
+const byName = (a, b) => a.name.localeCompare(b.name, 'it');
+const TYPES = {
+  compleanno:{l:'Compleanno', i:'🎂'}, maestre:{l:'Regalo maestre', i:'🎁'}, gita:{l:'Gita', i:'🚌'},
+  festa:{l:'Festa di classe', i:'🎉'}, altro:{l:'Altro', i:'📌'}
+};
+
+/* ============ Dati (salvati sul dispositivo) ============ */
+const KEY = 'classe-eventi-v1';
+function load(){
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.parents && d.events) return d; } catch(e){}
+  return {parents:[], events:[], pay:{}, settings:{className:'La mia classe'}, lastBackup:null};
+}
+let S = load();
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ toast('⚠️ Impossibile salvare i dati'); }
+}
+const pk = (e, p) => e + ':' + p;
+const getPay = (eid, pid) => S.pay[pk(eid, pid)] || null;
+const paidOf = (eid, pid) => (getPay(eid, pid)?.amount) || 0;
+
+function status(ev, a){
+  if (a <= 0) return 'none';
+  if (ev.quota > 0 && a < ev.quota - 0.001) return 'partial';
+  return 'paid';
+}
+function stats(ev){
+  const ps = S.parents.filter(p => !(ev.excluded || []).includes(p.id)).sort(byName);
+  let collected = 0, paid = 0, partial = 0, none = 0, missing = 0;
+  S.parents.forEach(p => collected += paidOf(ev.id, p.id));
+  ps.forEach(p => {
+    const a = paidOf(ev.id, p.id), st = status(ev, a);
+    if (st === 'paid') paid++; else if (st === 'partial') partial++; else none++;
+    if (ev.quota > 0) missing += Math.max(0, ev.quota - a);
+  });
+  const expected = (ev.quota || 0) * ps.length;
+  return {ps, collected, expected, missing, paid, partial, none, balance: collected - (ev.spent || 0)};
+}
+
+/* ============ UI helpers ============ */
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200); }
+function sheet(html){ $('#sheet').innerHTML = html; $('#sheetbg').classList.add('show'); }
+function closeSheet(){ $('#sheetbg').classList.remove('show'); }
+$('#sheetbg').addEventListener('click', e => { if (e.target.id === 'sheetbg') closeSheet(); });
+
+/* ============ Router ============ */
+let view = 'events', curId = null;
+const filt = {ev:'open', row:'all', q:'', pq:''};
+function go(v, id){ view = v; curId = id || null; filt.q = ''; filt.pq = ''; filt.row = 'all'; render(); scrollTo(0, 0); }
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.go));
+$('#back').onclick = () => go('events');
+
+function render(){
+  const evt = view === 'event' ? S.events.find(e => e.id === curId) : null;
+  if (view === 'event' && !evt){ view = 'events'; }
+  let html = '', title = S.settings.className || 'Classe Eventi', fab = false, hbtn = '';
+  if (view === 'events'){ html = vEvents(); fab = true; }
+  else if (view === 'event'){ html = vEvent(evt); title = TYPES[evt.type].i + ' ' + evt.title; hbtn = '✏️'; }
+  else if (view === 'parents'){ html = vParents(); title = 'Genitori'; fab = true; }
+  else if (view === 'summary'){ html = vSummary(); title = 'Riepilogo'; }
+  else { html = vSettings(); title = 'Altro'; }
+  $('#app').innerHTML = html;
+  $('#title').textContent = title;
+  $('#back').hidden = view !== 'event';
+  $('#hbtn').hidden = !hbtn; $('#hbtn').textContent = hbtn;
+  $('#fab').hidden = !fab;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.go === (view === 'event' ? 'events' : view)));
+}
+$('#hbtn').onclick = () => view === 'event' && eventForm(curId);
+$('#fab').onclick = () => view === 'events' ? eventForm() : parentForm();
+
+/* ============ Vista: elenco eventi ============ */
+function vEvents(){
+  let tc = 0, tm = 0, te = 0;
+  S.events.filter(e => !e.closed).forEach(e => { const s = stats(e); tc += s.collected; tm += s.missing; te += s.expected; });
+  const list = S.events.filter(e => filt.ev === 'all' || (filt.ev === 'open' ? !e.closed : e.closed))
+    .sort((a, b) => (a.closed - b.closed) || (a.date || '').localeCompare(b.date || ''));
+  let h = '';
+  if (S.lastBackup === null && S.events.length || S.lastBackup && Date.now() - S.lastBackup > 30 * 864e5)
+    h += `<div class="banner">💾 I dati sono salvati solo su questo telefono. Fai un backup da <b>Altro</b>.</div>`;
+  if (!S.parents.length)
+    return h + `<div class="empty"><div class="big">👪</div><p><b>Benvenuto!</b><br>Inizia aggiungendo i genitori della classe.</p><button class="btn" data-act="goParents">Aggiungi genitori</button></div>`;
+  h += `<div class="grid">
+    <div class="stat ok"><small>Raccolto (eventi aperti)</small><b>${eur(tc)}</b></div>
+    <div class="stat bad"><small>Ancora da versare</small><b>${eur(tm)}</b></div></div>`;
+  h += `<div class="chips">${[['open','Aperti'],['closed','Chiusi'],['all','Tutti']].map(([k, l]) => `<button class="chip ${filt.ev === k ? 'on' : ''}" data-act="fev" data-k="${k}">${l}</button>`).join('')}</div>`;
+  if (!list.length) return h + `<div class="empty"><div class="big">📅</div><p>Nessun evento. Tocca <b>＋</b> per crearne uno.</p></div>`;
+  return h + list.map(e => {
+    const s = stats(e), pct = s.expected > 0 ? s.collected / s.expected : (s.ps.length ? s.paid / s.ps.length : 0);
+    return `<div class="card ev" data-act="open" data-id="${e.id}">
+      <div class="ic">${TYPES[e.type].i}</div>
+      <div class="grow"><b>${esc(e.title)} ${e.closed ? '<span class="tag">chiuso</span>' : ''}</b>
+        <small>${TYPES[e.type].l}${e.date ? ' · ' + fmtDate(e.date) : ''}</small>
+        <div class="bar"><i style="width:${Math.min(100, Math.round(pct * 100))}%"></i></div>
+        <small>${eur(s.collected)}${s.expected ? ' / ' + eur(s.expected) : ''} · ${s.paid}/${s.ps.length} hanno pagato</small></div></div>`;
+  }).join('');
+}
+
+/* ============ Vista: dettaglio evento ============ */
+function vEvent(ev){
+  const s = stats(ev), pct = s.expected > 0 ? s.collected / s.expected : (s.ps.length ? s.paid / s.ps.length : 0);
+  let h = `<div class="grid">
+    <div class="stat ok"><small>Totale raccolto</small><b>${eur(s.collected)}</b></div>
+    <div class="stat bad"><small>${ev.quota > 0 ? 'Mancano' : 'Non hanno versato'}</small><b>${ev.quota > 0 ? eur(s.missing) : s.none + ' pers.'}</b></div>
+    <div class="stat"><small>Hanno pagato</small><b>${s.paid} / ${s.ps.length}</b>${s.partial ? `<small>+${s.partial} parziali</small>` : ''}</div>
+    <div class="stat"><small>${ev.spent ? 'Saldo (raccolto − spesa)' : 'Quota a persona'}</small><b>${ev.spent ? eur(s.balance) : (ev.quota ? eur(ev.quota) : 'libera')}</b></div></div>
+    <div class="bar"><i style="width:${Math.min(100, Math.round(pct * 100))}%"></i></div>
+    <small>${ev.date ? fmtDate(ev.date) : ''}${ev.notes ? ' · ' + esc(ev.notes) : ''}</small>
+    <div class="btns">
+      <button class="btn" data-act="shareList">📤 Condividi elenco</button>
+      <button class="btn sec" data-act="remindAll">💬 Sollecito a chi manca</button></div>
+    <input id="q" placeholder="🔍 Cerca genitore o figlio/a" value="${esc(filt.q)}">
+    <div class="chips">${[['all','Tutti'],['missing','Mancano'],['paid','Pagato']].map(([k, l]) => `<button class="chip ${filt.row === k ? 'on' : ''}" data-act="frow" data-k="${k}">${l}</button>`).join('')}</div>
+    <div id="rows">${rowsHtml(ev)}</div>`;
+  const ex = S.parents.filter(p => (ev.excluded || []).includes(p.id));
+  if (ex.length) h += `<p class="mute">Esclusi dall'evento: ${ex.map(p => esc(p.name)).join(', ')}</p>`;
+  return h;
+}
+function visibleRows(ev){
+  const q = filt.q.toLowerCase();
+  return stats(ev).ps.filter(p => {
+    const st = status(ev, paidOf(ev.id, p.id));
+    if (filt.row === 'missing' && st === 'paid') return false;
+    if (filt.row === 'paid' && st !== 'paid') return false;
+    return !q || (p.name + ' ' + (p.child || '')).toLowerCase().includes(q);
+  });
+}
+function rowsHtml(ev){
+  const rows = visibleRows(ev);
+  if (!rows.length) return `<div class="empty">Nessun risultato</div>`;
+  return rows.map(p => {
+    const pay = getPay(ev.id, p.id), a = pay?.amount || 0, st = status(ev, a);
+    const miss = ev.quota > 0 ? Math.max(0, ev.quota - a) : 0;
+    const sub = [p.child ? 'di ' + p.child : '', pay?.note].filter(Boolean).map(esc).join(' · ');
+    return `<div class="row" data-act="pay" data-id="${p.id}"><div class="dot ${st}"></div>
+      <div class="grow"><b>${esc(p.name)}</b>${sub ? `<small>${sub}</small>` : ''}</div>
+      <div class="amt ${st}">${a > 0 ? eur(a) : '—'}${miss > 0 ? `<small>mancano ${eur(miss)}</small>` : (st === 'paid' ? '<small>✓ pagato</small>' : '')}</div>
+      ${st !== 'paid' && p.phone ? `<button class="ghost" data-act="waOne" data-id="${p.id}" title="Sollecita su WhatsApp">💬</button>` : ''}</div>`;
+  }).join('');
+}
+
+/* ============ Vista: genitori ============ */
+function vParents(){
+  return `<input id="pq" placeholder="🔍 Cerca genitore o figlio/a" value="${esc(filt.pq)}">
+    <div class="btns"><button class="btn sec" data-act="bulk">📋 Incolla elenco</button></div>
+    <div id="plist">${parentsHtml()}</div>`;
+}
+function parentsHtml(){
+  const q = filt.pq.toLowerCase();
+  const l = S.parents.filter(p => !q || (p.name + ' ' + (p.child || '')).toLowerCase().includes(q)).sort(byName);
+  if (!S.parents.length) return `<div class="empty"><div class="big">👪</div><p>Nessun genitore. Tocca <b>＋</b> oppure usa <b>Incolla elenco</b> per inserirli tutti insieme.</p></div>`;
+  return `<p class="mute">${S.parents.length} nominativi</p>` + l.map(p => `<div class="row" data-act="editParent" data-id="${p.id}">
+    <div class="grow"><b>${esc(p.name)}</b><small>${p.child ? 'Genitore di ' + esc(p.child) : ''}${p.bday ? ' · 🎂 ' + fmtDate(p.bday) : ''}${p.phone ? ' · 📞 ' + esc(p.phone) : ''}</small></div>
+    <span class="mute">›</span></div>`).join('');
+}
+
+/* ============ Vista: riepilogo ============ */
+function nextBday(iso){
+  const [y, m, d] = iso.split('-').map(Number), now = new Date(); now.setHours(0, 0, 0, 0);
+  let n = new Date(now.getFullYear(), m - 1, d);
+  if (n < now) n = new Date(now.getFullYear() + 1, m - 1, d);
+  return {date: n, days: Math.round((n - now) / 864e5), age: n.getFullYear() - y};
+}
+function vSummary(){
+  const open = S.events.filter(e => !e.closed);
+  let tc = 0, tm = 0, spent = 0, allc = 0;
+  S.events.forEach(e => { const s = stats(e); allc += s.collected; spent += e.spent || 0; if (!e.closed){ tc += s.collected; tm += s.missing; } });
+  let h = `<div class="grid">
+    <div class="stat ok"><small>Totale raccolto (tutti)</small><b>${eur(allc)}</b></div>
+    <div class="stat"><small>Totale speso</small><b>${eur(spent)}</b></div>
+    <div class="stat"><small>Cassa residua</small><b>${eur(allc - spent)}</b></div>
+    <div class="stat bad"><small>Ancora da versare</small><b>${eur(tm)}</b></div></div>`;
+  // Per tipo
+  const bt = {};
+  S.events.forEach(e => { const s = stats(e); (bt[e.type] ||= {c:0, n:0}); bt[e.type].c += s.collected; bt[e.type].n++; });
+  if (Object.keys(bt).length) h += `<h3>Per tipo di evento</h3><div class="card">${Object.entries(bt).map(([k, v]) => `<div class="hr"><span>${TYPES[k].i} ${TYPES[k].l} <small>(${v.n})</small></span><b>${eur(v.c)}</b></div>`).join('')}</div>`;
+  // Chi deve di più
+  const owe = S.parents.map(p => {
+    let m = 0, n = 0;
+    open.forEach(e => { if ((e.excluded || []).includes(p.id)) return; const a = paidOf(e.id, p.id); const need = e.quota > 0 ? Math.max(0, e.quota - a) : 0; if (need > 0 || (e.quota <= 0 && a <= 0)){ m += need; n++; } });
+    return {p, m, n};
+  }).filter(x => x.n > 0).sort((a, b) => b.m - a.m || b.n - a.n);
+  h += `<h3>Chi deve ancora versare</h3>`;
+  h += owe.length ? `<div class="card">${owe.slice(0, 30).map(x => `<div class="hr"><span>${esc(x.p.name)}<br><small>${x.n === 1 ? '1 evento aperto' : x.n + ' eventi aperti'}</small></span><b>${x.m > 0 ? eur(x.m) : '—'}</b></div>`).join('')}</div>` : `<div class="card mute">🎉 Tutti in regola con gli eventi aperti.</div>`;
+  // Compleanni
+  const bd = S.parents.filter(p => p.bday).map(p => ({p, ...nextBday(p.bday)})).sort((a, b) => a.days - b.days).slice(0, 8);
+  h += `<h3>Prossimi compleanni</h3>`;
+  h += bd.length ? bd.map(x => `<div class="row" data-act="bdayEvent" data-id="${x.p.id}">
+      <div class="ic">🎂</div><div class="grow"><b>${esc(x.p.child || x.p.name)}</b><small>${x.days === 0 ? 'Oggi!' : 'tra ' + x.days + ' giorni'} · compie ${x.age} anni</small></div>
+      <small>＋ evento</small></div>`).join('') : `<div class="card mute">Aggiungi la data di nascita dei bambini nella scheda genitore per vedere i compleanni.</div>`;
+  return h;
+}
+
+/* ============ Vista: impostazioni ============ */
+function vSettings(){
+  return `<div class="card"><label style="margin-top:0">Nome della classe</label>
+      <input id="cname" value="${esc(S.settings.className)}"></div>
+    <h3>Dati e backup</h3>
+    <div class="card">
+      <p class="mute" style="margin-top:0">I dati sono salvati su <b>questo telefono</b>. Fai un backup ogni tanto e usalo per passare i dati a un altro rappresentante o a un nuovo telefono.
+      ${S.lastBackup ? '<br>Ultimo backup: ' + new Date(S.lastBackup).toLocaleDateString('it-IT') : '<br><b>Nessun backup ancora.</b>'}</p>
+      <div class="btns"><button class="btn" data-act="backup">💾 Salva / condividi backup</button>
+      <button class="btn sec" data-act="restore">📥 Ripristina backup</button></div>
+      <div class="btns"><button class="btn sec" data-act="csv">📄 Esporta CSV (Excel)</button></div>
+      <input type="file" id="file" accept=".json,application/json" hidden></div>
+    <h3>Zona pericolosa</h3>
+    <div class="card"><button class="btn bad full" data-act="wipe">🗑 Cancella tutti i dati</button></div>
+    <p class="mute" style="text-align:center">Classe Eventi · funziona anche offline</p>`;
+}
+
+/* ============ Form: evento ============ */
+function eventForm(id, preset){
+  const ev = id ? S.events.find(e => e.id === id) : Object.assign({title:'', type:'compleanno', date:today(), quota:'', spent:'', notes:'', excluded:[]}, preset || {});
+  sheet(`<h2>${id ? 'Modifica evento' : 'Nuovo evento'}</h2>
+  <form id="evf">
+    <label>Tipo</label><select name="type">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${ev.type === k ? 'selected' : ''}>${v.i} ${v.l}</option>`).join('')}</select>
+    <label>Titolo</label><input name="title" required value="${esc(ev.title)}" placeholder="es. Compleanno di Luca">
+    <label>Data</label><input type="date" name="date" value="${esc(ev.date)}">
+    <label>Quota a persona (€) — lascia vuoto se libera</label><input name="quota" inputmode="decimal" value="${ev.quota || ''}" placeholder="es. 5">
+    <label>Spesa sostenuta (€) — opzionale</label><input name="spent" inputmode="decimal" value="${ev.spent || ''}" placeholder="es. 48,50">
+    <label>Note</label><textarea name="notes">${esc(ev.notes)}</textarea>
+    <label>Chi partecipa alla colletta</label>
+    <div class="pick">${S.parents.slice().sort(byName).map(p => `<label class="chk"><input type="checkbox" name="in" value="${p.id}" ${(ev.excluded || []).includes(p.id) ? '' : 'checked'}>${esc(p.name)}${p.child ? ' <small>(' + esc(p.child) + ')</small>' : ''}</label>`).join('')}</div>
+    ${id ? `<label class="chk"><input type="checkbox" name="closed" ${ev.closed ? 'checked' : ''}>Evento chiuso (archiviato)</label>` : ''}
+    <div class="btns"><button class="btn" type="submit">Salva</button><button type="button" class="btn sec" data-act="close">Annulla</button></div>
+    ${id ? `<div class="btns"><button type="button" class="btn sec" data-act="dupEvent" data-id="${id}">📑 Duplica</button><button type="button" class="btn bad" data-act="delEvent" data-id="${id}">Elimina</button></div>` : ''}
+  </form>`);
+  $('#evf').onsubmit = e => {
+    e.preventDefault();
+    const f = new FormData(e.target), inn = f.getAll('in');
+    const data = {type:f.get('type'), title:f.get('title').trim(), date:f.get('date'), quota:num(f.get('quota')), spent:num(f.get('spent')), notes:f.get('notes').trim(),
+      excluded:S.parents.map(p => p.id).filter(i => !inn.includes(i))};
+    if (id){ Object.assign(ev, data, {closed:!!f.get('closed')}); }
+    else { const n = Object.assign({id:uid(), closed:false}, data); S.events.push(n); id = n.id; }
+    save(); closeSheet(); if (view === 'event') render(); else go('event', id);
+  };
+}
+
+/* ============ Form: genitore ============ */
+function parentForm(id, preset){
+  const p = id ? S.parents.find(x => x.id === id) : Object.assign({name:'', child:'', phone:'', bday:'', notes:''}, preset || {});
+  sheet(`<h2>${id ? 'Modifica genitore' : 'Nuovo genitore'}</h2>
+  <form id="pf">
+    <label>Nome genitore</label><input name="name" required value="${esc(p.name)}" placeholder="es. Maria Rossi">
+    <label>Figlio/a</label><input name="child" value="${esc(p.child)}" placeholder="es. Luca">
+    <label>Data di nascita figlio/a (per i compleanni)</label><input type="date" name="bday" value="${esc(p.bday)}">
+    <label>Telefono (per i solleciti WhatsApp)</label><input name="phone" type="tel" value="${esc(p.phone)}" placeholder="es. 333 1234567">
+    <label>Note</label><textarea name="notes">${esc(p.notes)}</textarea>
+    <div class="btns"><button class="btn" type="submit">Salva</button><button type="button" class="btn sec" data-act="close">Annulla</button></div>
+    ${id ? `<div class="btns"><button type="button" class="btn bad" data-act="delParent" data-id="${id}">Elimina genitore</button></div>` : ''}
+  </form>`);
+  $('#pf').onsubmit = e => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target));
+    Object.keys(f).forEach(k => f[k] = f[k].trim());
+    if (id) Object.assign(p, f); else S.parents.push(Object.assign({id:uid()}, f));
+    save(); closeSheet(); render();
+  };
+}
+function bulkForm(){
+  sheet(`<h2>Incolla elenco genitori</h2>
+  <p class="mute">Un genitore per riga. Formato: <b>Nome genitore; Figlio/a; Telefono</b> (figlio e telefono sono facoltativi).</p>
+  <form id="bf"><textarea name="t" style="min-height:200px" placeholder="Maria Rossi; Luca; 333 1234567&#10;Paolo Bianchi; Sofia&#10;Anna Verdi"></textarea>
+  <div class="btns"><button class="btn" type="submit">Importa</button><button type="button" class="btn sec" data-act="close">Annulla</button></div></form>`);
+  $('#bf').onsubmit = e => {
+    e.preventDefault();
+    const lines = new FormData(e.target).get('t').split('\n').map(l => l.trim()).filter(Boolean);
+    lines.forEach(l => { const [name, child = '', phone = ''] = l.split(/[;\t]/).map(x => x.trim()); if (name) S.parents.push({id:uid(), name, child, phone, bday:'', notes:''}); });
+    save(); closeSheet(); render(); toast(lines.length + ' genitori aggiunti');
+  };
+}
+
+/* ============ Form: versamento ============ */
+function payForm(eid, pid){
+  const ev = S.events.find(e => e.id === eid), p = S.parents.find(x => x.id === pid), cur = getPay(eid, pid) || {amount:0, note:'', date:today()};
+  const order = visibleRows(ev).map(x => x.id), nxt = order[order.indexOf(pid) + 1];
+  sheet(`<h2>${esc(p.name)}</h2><p class="mute" style="margin:0">${p.child ? 'Genitore di ' + esc(p.child) + ' · ' : ''}${esc(ev.title)}</p>
+  <form id="payf">
+    <label>Importo versato (€)</label><input name="amount" inputmode="decimal" value="${cur.amount || ''}" placeholder="0,00" autofocus>
+    <div class="chips" style="margin-bottom:0">
+      ${ev.quota > 0 ? `<button type="button" class="chip" data-act="fill" data-v="${ev.quota}">Quota intera ${eur(ev.quota)}</button>` : ''}
+      ${[5, 10, 20].map(v => `<button type="button" class="chip" data-act="fill" data-v="${v}">${v} €</button>`).join('')}
+      <button type="button" class="chip" data-act="fill" data-v="">Azzera</button></div>
+    <label>Data versamento</label><input type="date" name="date" value="${esc(cur.date || today())}">
+    <label>Note</label><textarea name="note" placeholder="es. pagato in contanti, ha dato 2 quote…">${esc(cur.note)}</textarea>
+    <div class="btns"><button class="btn" type="submit">Salva</button>${nxt ? `<button class="btn sec" type="submit" data-next="${nxt}">Salva e prossimo →</button>` : ''}</div>
+    ${p.phone ? `<div class="btns"><button type="button" class="btn sec" data-act="waOne" data-id="${pid}">💬 Sollecita su WhatsApp</button></div>` : ''}
+  </form>`);
+  $('#payf').onsubmit = e => {
+    e.preventDefault();
+    const f = new FormData(e.target), a = num(f.get('amount')), note = f.get('note').trim();
+    if (a <= 0 && !note) delete S.pay[pk(eid, pid)];
+    else S.pay[pk(eid, pid)] = {amount:a, note, date:f.get('date') || today()};
+    save(); closeSheet(); render();
+    const n = e.submitter?.dataset.next; if (n) payForm(eid, n);
+  };
+}
+
+/* ============ WhatsApp / condivisione ============ */
+function waNumber(ph){
+  let d = String(ph || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 10 && d.startsWith('3')) d = '39' + d;
+  return d;
+}
+const dueTxt = ev => ev.quota > 0 ? ` di ${eur(ev.quota)}` : '';
+function remindText(ev, p){
+  const miss = ev.quota > 0 ? Math.max(0, ev.quota - paidOf(ev.id, p.id)) : 0;
+  return `Ciao ${p.name.split(' ')[0]}, ti ricordo la quota${miss > 0 ? ' di ' + eur(miss) : dueTxt(ev)} per "${ev.title}"${ev.date ? ' (' + fmtDate(ev.date) + ')' : ''}. Grazie! 🙂`;
+}
+function listText(ev){
+  const s = stats(ev), has = [], no = [];
+  s.ps.forEach(p => { const a = paidOf(ev.id, p.id); (status(ev, a) === 'paid' ? has : no).push(p.name + (status(ev, a) === 'partial' ? ` (${eur(a)}/${eur(ev.quota)})` : '')); });
+  return `${TYPES[ev.type].i} ${ev.title}${ev.date ? ' – ' + fmtDate(ev.date) : ''}\n${ev.quota > 0 ? 'Quota: ' + eur(ev.quota) + ' a persona\n' : ''}` +
+    `\n✅ Hanno versato (${has.length}):\n${has.join(', ') || '—'}\n\n❌ Mancano (${no.length}):\n${no.join(', ') || '—'}\n\n💰 Raccolto: ${eur(s.collected)}${ev.quota > 0 ? ' su ' + eur(s.expected) + ' (mancano ' + eur(s.missing) + ')' : ''}`;
+}
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+async function shareText(t){
+  if (NATIVE){ try { await Capacitor.Plugins.Share.share({text:t}); } catch(e){} return; }
+  if (navigator.share){ try { await navigator.share({text:t}); return; } catch(e){ if (e.name === 'AbortError') return; } }
+  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+}
+
+/* ============ Backup / CSV ============ */
+async function saveFile(name, mime, content){
+  if (NATIVE){ try {
+    const {Filesystem, Share} = Capacitor.Plugins;
+    await Filesystem.writeFile({path:name, data:content, directory:'CACHE', encoding:'utf8'});
+    const {uri} = await Filesystem.getUri({path:name, directory:'CACHE'});
+    await Share.share({title:name, url:uri}); return true;
+  } catch(e){ toast('Impossibile creare il file'); return false; } }
+  const blob = new Blob([content], {type:mime}), file = new File([blob], name, {type:mime});
+  if (navigator.canShare && navigator.canShare({files:[file]})){ try { await navigator.share({files:[file], title:name}); return true; } catch(e){ if (e.name === 'AbortError') return false; } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); return true;
+}
+async function backup(){
+  if (await saveFile('classe-eventi-backup-' + today() + '.json', 'application/json', JSON.stringify(S, null, 1))){ S.lastBackup = Date.now(); save(); render(); toast('Backup creato ✓'); }
+}
+function csv(){
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"', rows = [['Evento', 'Tipo', 'Data evento', 'Genitore', 'Figlio/a', 'Quota', 'Versato', 'Mancante', 'Data versamento', 'Note']];
+  S.events.forEach(e => stats(e).ps.forEach(p => { const pay = getPay(e.id, p.id), a = pay?.amount || 0;
+    rows.push([e.title, TYPES[e.type].l, e.date, p.name, p.child, e.quota || '', a, e.quota > 0 ? Math.max(0, e.quota - a) : '', pay?.date || '', pay?.note || '']); }));
+  saveFile('classe-eventi-' + today() + '.csv', 'text/csv', '﻿' + rows.map(r => r.map(q).join(';')).join('\r\n'));
+}
+
+/* ============ Azioni (event delegation) ============ */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id, ev = view === 'event' ? S.events.find(x => x.id === curId) : null;
+  switch (a){
+    case 'goParents': go('parents'); break;
+    case 'open': go('event', id); break;
+    case 'fev': filt.ev = el.dataset.k; render(); break;
+    case 'frow': filt.row = el.dataset.k; render(); break;
+    case 'pay': payForm(curId, id); break;
+    case 'close': closeSheet(); break;
+    case 'fill': { const i = $('#payf [name=amount]'); i.value = el.dataset.v; i.focus(); break; }
+    case 'editParent': parentForm(id); break;
+    case 'bulk': bulkForm(); break;
+    case 'bdayEvent': { const p = S.parents.find(x => x.id === id), n = nextBday(p.bday);
+      const last = S.events.filter(x => x.type === 'compleanno' && x.quota > 0).pop();
+      eventForm(null, {type:'compleanno', title:'Compleanno di ' + (p.child || p.name), date:ymd(n.date), quota:last?.quota || '', excluded:[p.id]}); break; }
+    case 'shareList': shareText(listText(ev)); break;
+    case 'remindAll': { const miss = stats(ev).ps.filter(p => status(ev, paidOf(ev.id, p.id)) !== 'paid');
+      if (!miss.length) return toast('Tutti hanno versato 🎉');
+      shareText(`Promemoria "${ev.title}"${dueTxt(ev) ? ', quota' + dueTxt(ev) : ''}${ev.date ? ' (' + fmtDate(ev.date) + ')' : ''}.\nMancano ancora: ${miss.map(p => p.name).join(', ')}.\nGrazie a tutti! 🙂`); break; }
+    case 'waOne': { const p = S.parents.find(x => x.id === id), evt = S.events.find(x => x.id === curId);
+      window.open('https://wa.me/' + waNumber(p.phone) + '?text=' + encodeURIComponent(remindText(evt, p)), '_blank'); break; }
+    case 'delEvent': if (confirm('Eliminare questo evento e tutti i versamenti collegati?')){
+      S.events = S.events.filter(x => x.id !== id); Object.keys(S.pay).filter(k => k.startsWith(id + ':')).forEach(k => delete S.pay[k]); save(); closeSheet(); go('events'); } break;
+    case 'dupEvent': { const o = S.events.find(x => x.id === id); closeSheet(); eventForm(null, {type:o.type, title:o.title + ' (copia)', quota:o.quota, excluded:o.excluded, date:today()}); break; }
+    case 'delParent': if (confirm('Eliminare questo genitore e i suoi versamenti?')){
+      S.parents = S.parents.filter(x => x.id !== id); Object.keys(S.pay).filter(k => k.endsWith(':' + id)).forEach(k => delete S.pay[k]); save(); closeSheet(); render(); } break;
+    case 'backup': backup(); break;
+    case 'csv': csv(); break;
+    case 'restore': $('#file').click(); break;
+    case 'wipe': if (confirm('Cancellare TUTTI i dati? Operazione irreversibile.') && confirm('Sei davvero sicuro?')){ S = {parents:[], events:[], pay:{}, settings:{className:'La mia classe'}, lastBackup:null}; save(); go('events'); } break;
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q'){ filt.q = e.target.value; $('#rows').innerHTML = rowsHtml(S.events.find(x => x.id === curId)); }
+  if (e.target.id === 'pq'){ filt.pq = e.target.value; $('#plist').innerHTML = parentsHtml(); }
+  if (e.target.id === 'cname'){ S.settings.className = e.target.value; save(); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id !== 'file' || !e.target.files[0]) return;
+  const r = new FileReader();
+  r.onload = () => { try {
+      const d = JSON.parse(r.result); if (!Array.isArray(d.parents) || !Array.isArray(d.events)) throw 0;
+      if (confirm('Sostituire i dati attuali con il backup (' + d.parents.length + ' genitori, ' + d.events.length + ' eventi)?')){ S = Object.assign({pay:{}, settings:{className:'La mia classe'}}, d); save(); go('events'); toast('Backup ripristinato ✓'); }
+    } catch(_){ toast('File di backup non valido'); } e.target.value = ''; };
+  r.readAsText(e.target.files[0]);
+});
+
+/* ============ Avvio ============ */
+render();
+if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
